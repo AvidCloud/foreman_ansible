@@ -46,6 +46,17 @@ Rails.application.routes.draw do
             end
             collection do
               post :multiple_play_roles
+            resources :ansible_roles, :only => [] do
+              member do
+                post :play_ad_hoc_role_on_host
+              end
+            end
+          end
+          resources :hostgroups, :only => [] do
+            resources :ansible_roles, :only => [] do
+              member do
+                post :play_ad_hoc_role_on_hostgroup
+              end
             end
           end
         end
