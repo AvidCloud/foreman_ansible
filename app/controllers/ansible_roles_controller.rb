@@ -1,6 +1,7 @@
 # UI controller for ansible roles
 class AnsibleRolesController < ::ApplicationController
   include Foreman::Controller::AutoCompleteSearch
+  include ForemanTasks::Triggers
 
   before_action :find_resource, :only => [:destroy]
   before_action :find_proxy, :only => [:import]
@@ -35,6 +36,17 @@ class AnsibleRolesController < ::ApplicationController
     @importer.finish_import(params[:changed])
     notice _('Import of roles successfully finished.')
     redirect_to ansible_roles_path
+  end
+
+  def play_ad_hoc_role_on_host
+    params[:id] = params[:ansible_role][:id]
+    @host = Host.find(params[:host_id])
+    find_resource
+    task = async_task(::Actions::ForemanAnsible::PlayHostRole, @host, @ansible_role)
+    redirect_to task
+  rescue Foreman::Exception => e
+    error e.message
+    redirect_to host_path(@host)
   end
 
   private

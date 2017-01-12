@@ -30,6 +30,21 @@ module ForemanAnsible
       Foreman::Gettext::Support.add_text_domain locale_domain, locale_dir
     end
 
+    assets_to_precompile =
+      Dir.chdir(root) do
+        Dir['app/assets/javascripts/**/*'].map do |f|
+          f.split(File::SEPARATOR, 4).last
+        end
+      end
+
+    initializer 'foreman_ansible.assets.precompile' do |app|
+      app.config.assets.precompile += assets_to_precompile
+    end
+
+    initializer 'foreman_ansible.configure_assets', :group => :assets do
+      SETTINGS[:foreman_ansible] = { :assets => { :precompile => assets_to_precompile } }
+    end
+
     initializer 'foreman_ansible.register_plugin', :before => :finisher_hook do
       Foreman::Plugin.register :foreman_ansible do
         requires_foreman '>= 1.12'
