@@ -51,6 +51,15 @@ class AnsibleRolesController < ::ApplicationController
 
   private
 
+  def action_permission
+    case params[:action]
+    when 'play_ad_hoc_role_on_host'
+      :view
+    else
+      super
+    end
+  end
+
   def find_proxy
     return nil unless params[:proxy]
     @proxy = SmartProxy.authorized(:view_smart_proxies).find(params[:proxy])
