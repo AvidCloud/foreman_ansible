@@ -2,16 +2,18 @@ Rails.application.routes.draw do
   scope '/ansible' do
     constraints(:id => %r{[^\/]+}) do
       resources :hosts, :only => [] do
-        resources :ansible_roles, :only => [] do
-          member do
-            post :play_ad_hoc_role_on_host
-          end
-        end
         member do
           get :play_roles
+          post :play_ad_hoc_role
         end
         collection do
           get :multiple_play_roles
+        end
+      end
+      resources :hostgroups, :only => [] do
+        member do
+          get :play_roles
+          post :play_ad_hoc_role
         end
       end
     end
@@ -32,17 +34,22 @@ Rails.application.routes.draw do
 
         constraints(:id => %r{[^\/]+}) do
           resources :hosts, :only => [] do
-            resources :ansible_roles, :only => [] do
-              member do
-                post :play_ad_hoc_role_on_host
-              end
+            member do
+              post :play_roles
+              post :play_ad_hoc_role
+            end
+            collection do
+              post :multiple_play_roles
             end
           end
+
           resources :hostgroups, :only => [] do
-            resources :ansible_roles, :only => [] do
-              member do
-                post :play_ad_hoc_role_on_hostgroup
-              end
+            member do
+              post :play_roles
+              post :play_ad_hoc_role
+            end
+            collection do
+              post :multiple_play_roles
             end
           end
         end

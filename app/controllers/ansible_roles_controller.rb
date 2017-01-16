@@ -38,27 +38,7 @@ class AnsibleRolesController < ::ApplicationController
     redirect_to ansible_roles_path
   end
 
-  def play_ad_hoc_role_on_host
-    params[:id] = params[:ansible_role][:id]
-    @host = Host.find(params[:host_id])
-    find_resource
-    task = async_task(::Actions::ForemanAnsible::PlayHostRole, @host, @ansible_role)
-    redirect_to task
-  rescue Foreman::Exception => e
-    error e.message
-    redirect_to host_path(@host)
-  end
-
   private
-
-  def action_permission
-    case params[:action]
-    when 'play_ad_hoc_role_on_host'
-      :view
-    else
-      super
-    end
-  end
 
   def find_proxy
     return nil unless params[:proxy]

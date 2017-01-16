@@ -15,13 +15,14 @@ module ForemanAnsible
         :id => :ansible_ad_hoc_role_button,
         :class => 'btn btn-default'
         )
-
-      if args.first.ansible_roles.present?
+      if args.first.ansible_roles.present? ||
+         args.first.inherited_ansible_roles.present?
         button = link_to(
           icon_text('play', ' ' + _('Ansible roles'), :kind => 'fa'),
           play_roles_host_path(:id => args.first.id),
           :id => :ansible_roles_button,
-          :class => 'btn btn-default'
+          :class => 'btn btn-default',
+          :'data-no-turbolink' => true
         )
         title_actions(button_group(ad_hoc_button,button))
       else

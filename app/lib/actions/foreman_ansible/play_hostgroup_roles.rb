@@ -1,29 +1,35 @@
 module Actions
   module ForemanAnsible
-    # Action that initiates the playbook run for an Ansible role of a
-    # hostgroup. It does that either locally or via a proxy when available.
-    class PlayHostgroupRole < Actions::EntryAction
+    # Action that initiates the playbook run for roles assigned to
+    # the hostgroup. It does that either locally or via a proxy when available.
+    class PlayHostgroupRoles < Actions::EntryAction
       include ::Actions::Helpers::WithContinuousOutput
       include ::Actions::Helpers::WithDelegatedAction
 
-      def plan(hostgroup, ansible_role, proxy_selector = ::ForemanAnsible::ProxySelector.new)
+      def plan(hostgroup, proxy_selector = ::ForemanAnsible::ProxySelector.new)
         if hostgroup.hosts.empty?
           raise ::Foreman::Exception.new(N_('host group is empty'))
         end
         input[:hostgroup] = { :id => hostgroup.id, :name => hostgroup.name }
         proxy = proxy_selector.determine_proxy(hostgroup.hosts[0])
         inventory_creator = ::ForemanAnsible::InventoryCreator.new(hostgroup.hosts)
-        playbook_creator = ::ForemanAnsible::PlaybookCreator.new([ansible_role.name])
-        plan_delegated_action(proxy, ::ForemanAnsibleCore::Actions::RunPlaybook,
-                              :inventory => inventory_creator.to_hash.to_json,
-                              :playbook => playbook_creator.roles_playbook)
+        role_names = []
+        hostgroup.hostgroup_ansible_roles.each do |ansible_role|
+          role_names.append(ansible_role.ansible_role_name)
+        end
+        playbook_creator = ::ForemanAnsible::PlaybookCreator.new(role_names)
+        plan_delegated_action(
+          proxy,
+          ::ForemanAnsibleCore::Actions::RunPlaybook,
+          :inventory => inventory_creator.to_hash.to_json,
+          :playbook => playbook_creator.roles_playbook
+        )
         plan_self
       end
 
       def finalize
-        if delegated_output[:exit_status].to_s != '0'
-          error! _('Playbook execution failed')
-        end
+        return unless delegated_output[:exit_status].to_s != '0'
+        error! _('Playbook execution failed')
       end
 
       def rescue_strategy
@@ -36,7 +42,7 @@ module Actions
       end
 
       def humanized_name
-        _('Play ad hoc Ansible role')
+        _('Play Ansible roles')
       end
 
       def humanized_output
