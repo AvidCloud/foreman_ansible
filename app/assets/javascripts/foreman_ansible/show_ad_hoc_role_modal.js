@@ -1,5 +1,4 @@
 function show_ad_hoc_role_modal(modal_id = null) {
-  $('form').attr('hidden', false)
   var modal_window = modal_id == null ? $('#adHocRoleModal') : $('#adHocRoleModal' + modal_id);
   modal_window.modal({'show': true});
   modal_window.find('a[rel="popover-modal"]').popover();
@@ -7,7 +6,6 @@ function show_ad_hoc_role_modal(modal_id = null) {
 }
 
 function close_ad_hoc_role_modal(modal_id = null) {
-  $('form').attr('hidden', true)
   var modal_window = modal_id == null ? $('#adHocRoleModal') : $('#adHocRoleModal' + modal_id);
   modal_window.modal('hide');
 }

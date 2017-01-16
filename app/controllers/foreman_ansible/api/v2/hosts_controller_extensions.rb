@@ -24,7 +24,8 @@ module ForemanAnsible
           param :id, Array, :required => true
 
           def multiple_play_roles
-            # TODO: How to prevent that find_resource is triggered by hosts_controller?
+            # TODO: How to prevent that find_resource is triggered by
+            # hosts_controller?
             @result = []
 
             @host.each do |item|
@@ -45,8 +46,7 @@ module ForemanAnsible
           def play_ad_hoc_role
             # FIXME: When using just role_id, find resource will throw an
             # exception: "undefined method `name' for nil:NilClass"
-            role_id = params.require(:the_role_id)
-            @ansible_role = AnsibleRole.find(role_id)
+            find_ansible_role(params.require(:the_role_id))
             @result = {
               :host => @host, :role => @ansible_role,
               :foreman_tasks => async_task(
@@ -59,6 +59,10 @@ module ForemanAnsible
         end
 
         private
+
+        def find_ansible_role(id)
+          @ansible_role = AnsibleRole.find(id)
+        end
 
         def action_permission
           case params[:action]

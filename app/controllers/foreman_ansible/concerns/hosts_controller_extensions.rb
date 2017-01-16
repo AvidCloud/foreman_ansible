@@ -26,7 +26,10 @@ module ForemanAnsible
       def play_ad_hoc_role
         find_resource
         @ansible_role = AnsibleRole.find(params[:ansible_role][:id])
-        task = async_task(::Actions::ForemanAnsible::PlayHostRole, @host, @ansible_role)
+        task = async_task(
+          ::Actions::ForemanAnsible::PlayHostRole,
+          @host, @ansible_role
+        )
         redirect_to task
       rescue Foreman::Exception => e
         error e.message

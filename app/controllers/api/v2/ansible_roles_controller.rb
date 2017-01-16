@@ -3,7 +3,6 @@ module Api
     # API controller for Ansible Roles
     class AnsibleRolesController < ::Api::V2::BaseController
       include ::Api::Version2
-      include ForemanTasks::Triggers
 
       before_action :find_resource, :only => [:show, :destroy]
       before_action :find_proxy, :only => [:import, :obsolete]

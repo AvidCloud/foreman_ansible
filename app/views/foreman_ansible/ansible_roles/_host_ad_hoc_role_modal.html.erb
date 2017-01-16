@@ -1,6 +1,5 @@
 <!-- ad hoc role modal window -->
 <% javascript 'foreman_ansible/show_ad_hoc_role_modal' %>
-<%= form_for :ansible_role, :url => play_ad_hoc_role_host_path() do |f| -%>
 <div class="modal fade" id="adHocRoleModal" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -9,6 +8,7 @@
         <h4 class="modal-title"><%= _('Ad Hoc Ansible Role Execution') %></h4>
       </div>
       <div class="modal-body">
+        <%= form_for :ansible_role, :url => play_ad_hoc_role_host_path() do |f| -%>
         <p><%= _('Select the role you want to execute on host %s via Ansible.') % @host.name %></p>
         <%= all_ansible_roles = AnsibleRole.find_each rescue []
             selectable_f f, :id, options_for_select(all_ansible_roles.collect { | role | [role.name, role.id] }), {},
@@ -16,9 +16,9 @@
       </div>
       <div class="modal-footer">
         <%= submit_tag _("Play role"), :class => "btn btn-primary" %>
+        <% end -%>
         <button type="button" class="btn btn btn-default" onclick="close_ad_hoc_role_modal(); return false;"><%= _('Cancel') %></button>
       </div>
     </div>
   </div>
 </div>
-<% end -%>

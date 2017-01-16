@@ -1,7 +1,6 @@
 # UI controller for ansible roles
 class AnsibleRolesController < ::ApplicationController
   include Foreman::Controller::AutoCompleteSearch
-  include ForemanTasks::Triggers
 
   before_action :find_resource, :only => [:destroy]
   before_action :find_proxy, :only => [:import]

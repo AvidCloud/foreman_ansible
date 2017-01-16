@@ -49,12 +49,13 @@ module ForemanAnsible
             # FIXME: When using just role_id, find resource will throw an
             # exception: "undefined method `name' for nil:NilClass"
             find_resource
-            role_id = params.require(:the_role_id)
-            @ansible_role = AnsibleRole.find(role_id)
+            find_ansible_role(params.require(:the_role_id))
+
             @result = {
-              :hostgroup => @hostgroup,  :role => @ansible_role,
+              :hostgroup => @hostgroup, :role => @ansible_role,
               :foreman_tasks => async_task(
-                ::Actions::ForemanAnsible::PlayHostgroupRole, @hostgroup, @ansible_role
+                ::Actions::ForemanAnsible::PlayHostgroupRole,
+                @hostgroup, @ansible_role
               )
             }
 
@@ -64,7 +65,12 @@ module ForemanAnsible
 
         private
 
-        # TODO: A better implementation of find_multiple should be available in hostgroups_controller
+        def find_ansible_role(id)
+          @ansible_role = AnsibleRole.find(id)
+        end
+
+        # TODO: A better implementation of find_multiple should be available in
+        # hostgroups_controller
 
         def find_multiple
           hostgroup_ids = params.fetch(:hostgroup_ids, [])
