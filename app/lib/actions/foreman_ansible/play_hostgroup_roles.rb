@@ -33,7 +33,7 @@ module Actions
       end
 
       def poll_intervals
-        [0.1,5]
+        [5]
       end
 
       def done?
