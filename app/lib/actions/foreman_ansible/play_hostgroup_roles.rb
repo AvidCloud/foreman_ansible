@@ -13,7 +13,7 @@ module Actions
                options = {})
         proxy = find_hostgroup_and_proxy(hostgroup, proxy_selector)
         inventory_creator = ::ForemanAnsible::
-          InventoryCreator.new(hostgroup.hosts)
+          InventoryCreator.new(gather_nested_hosts(hostgroup))
         playbook_creator = ::ForemanAnsible::
           PlaybookCreator.new(hostgroup_ansible_roles(hostgroup))
         input[:working_dir] = Dir.mktmpdir
@@ -33,7 +33,7 @@ module Actions
       end
 
       def poll_intervals
-        [5]
+        [0.1,5]
       end
 
       def done?
@@ -44,7 +44,6 @@ module Actions
       end
 
       def poll_external_task
-
         return_value = {
           :ansible_task_name => '',
           :ansible_progress => 0.0,
@@ -52,15 +51,21 @@ module Actions
           :ansible_task_count => 0
         }
 
-        begin
-          file_path = File.join(input[:working_dir], 'status_report.json')
-          return {:error => 'status_report not available'} if !File.file?(file_path)
-          content = JSON.parse(File.read(file_path))
-          return_value[:ansible_task_name] = content['task_name']
-          return_value[:ansible_progress] = content['progress']
-          return_value[:ansible_task_amount] = content['amount']
-          return_value[:ansible_task_count] = content['count']
-        rescue
+        if done?
+          return_value = {
+            :ansible_progress => 100.0,
+          }
+        else
+          begin
+            file_path = File.join(input[:working_dir], 'status_report.json')
+            return {:error => 'status_report not available'} if !File.file?(file_path)
+            content = JSON.parse(File.read(file_path))
+            return_value[:ansible_task_name] = content['task_name']
+            return_value[:ansible_progress] = content['progress']
+            return_value[:ansible_task_amount] = content['amount']
+            return_value[:ansible_task_count] = content['count']
+          rescue
+          end
         end
 
         return_value
@@ -70,8 +75,8 @@ module Actions
 
       def hostgroup_ansible_roles(hostgroup)
         role_names = []
-        hostgroup.hostgroup_ansible_roles.each do |ansible_role|
-          role_names.append(ansible_role.ansible_role_name)
+        hostgroup.all_ansible_roles.each do |ansible_role|
+          role_names.append(ansible_role.name)
         end
         role_names
       end
