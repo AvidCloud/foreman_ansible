@@ -10,7 +10,14 @@ module ForemanAnsibleCore
       @inventory = inventory
       @playbook  = playbook
       @options   = options
-      initialize_dirs
+      if !@options[:working_dir].nil? && !@options[:working_dir].empty?
+        @working_dir = @options[:working_dir]
+        @tmp_working_dir = true
+        settings = ForemanAnsibleCore.settings
+        initialize_ansible_dir(settings[:ansible_dir])
+      else
+        initialize_dirs
+      end
     end
 
     def start
@@ -26,7 +33,7 @@ module ForemanAnsibleCore
       command = [{ 'JSON_INVENTORY_FILE' => inventory_file }]
       command << 'ansible-playbook'
       command.concat(['-i', json_inventory_script])
-      if !@options[:verbosity_level].nil? && !@options[:verbosity_level].empty? && @options[:verbosity_level] > 0
+      if !@options[:verbosity_level].nil? && !@options[:verbosity_level].empty? && @options[:verbosity_level].to_i > 0
         command.concat([setup_verbosity])
       end
       command.concat(['-T', @options[:timeout]]) unless @options[:timeout].nil?
