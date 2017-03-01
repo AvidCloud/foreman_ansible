@@ -44,7 +44,6 @@ module Actions
       end
 
       def poll_external_task
-
         return_value = {
           :ansible_task_name => '',
           :ansible_progress => 0.0,
@@ -52,16 +51,23 @@ module Actions
           :ansible_task_count => 0
         }
 
-        begin
-          file_path = File.join(input[:working_dir], 'status_report.json')
-          return {:error => 'status_report not available'} if !File.file?(file_path)
-          content = JSON.parse(File.read(file_path))
-          return_value[:ansible_task_name] = content['task_name']
-          return_value[:ansible_progress] = content['progress']
-          return_value[:ansible_task_amount] = content['amount']
-          return_value[:ansible_task_count] = content['count']
-        rescue
+        if done?
+          return_value = {
+            :ansible_progress => 100.0,
+          }
+        else
+          begin
+            file_path = File.join(input[:working_dir], 'status_report.json')
+            return {:error => 'status_report not available'} if !File.file?(file_path)
+            content = JSON.parse(File.read(file_path))
+            return_value[:ansible_task_name] = content['task_name']
+            return_value[:ansible_progress] = content['progress']
+            return_value[:ansible_task_amount] = content['amount']
+            return_value[:ansible_task_count] = content['count']
+          rescue
+          end
         end
+
 
         return_value
       end
