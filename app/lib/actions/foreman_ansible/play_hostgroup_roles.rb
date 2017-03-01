@@ -75,20 +75,6 @@ module Actions
         end
         role_names
       end
-
-      def hostgroup_contains_hosts(hostgroup)
-        return unless hostgroup.hosts.empty?
-        raise ::Foreman::Exception.new(N_('host group is empty'))
-      end
-
-      def find_hostgroup_and_proxy(hostgroup, proxy_selector)
-        hostgroup_contains_hosts(hostgroup)
-        proxy = proxy_selector.determine_proxy(hostgroup.hosts[0])
-        input[:hostgroup] = { :id => hostgroup.id,
-                              :name => hostgroup.name,
-                              :proxy_used => proxy.try(:name) || :not_defined }
-        proxy
-      end
     end
   end
 end
