@@ -10,14 +10,7 @@ module ForemanAnsibleCore
       @inventory = inventory
       @playbook  = playbook
       @options   = options
-      if !@options[:working_dir].nil? && !@options[:working_dir].empty?
-        @working_dir = @options[:working_dir]
-        @tmp_working_dir = true
-        settings = ForemanAnsibleCore.settings
-        initialize_ansible_dir(settings[:ansible_dir])
-      else
-        initialize_dirs
-      end
+      initialize_dirs
     end
 
     def start
@@ -33,9 +26,7 @@ module ForemanAnsibleCore
       command = [{ 'JSON_INVENTORY_FILE' => inventory_file }]
       command << 'ansible-playbook'
       command.concat(['-i', json_inventory_script])
-      if !@options[:verbosity_level].nil? && !@options[:verbosity_level].empty? && @options[:verbosity_level].to_i > 0
-        command.concat([setup_verbosity])
-      end
+      command.concat([setup_verbosity]) if verbose?
       command.concat(['-T', @options[:timeout]]) unless @options[:timeout].nil?
       command << playbook_file
       logger.debug("[foreman_ansible] - Running command #{command}")
@@ -93,7 +84,13 @@ module ForemanAnsibleCore
 
     def initialize_dirs
       settings = ForemanAnsibleCore.settings
-      initialize_working_dir(settings[:working_dir])
+      if !@options[:working_dir].nil? && !@options[:working_dir].empty?
+        @working_dir = @options[:working_dir]
+        @tmp_working_dir = true
+        settings = ForemanAnsibleCore.settings
+      else
+        initialize_working_dir(settings[:working_dir])
+      end
       initialize_ansible_dir(settings[:ansible_dir])
     end
 
@@ -123,6 +120,12 @@ module ForemanAnsibleCore
         verbosity += 'v'
       end
       verbosity
+    end
+
+    def verbose?
+      verbosity_level = @options[:verbosity_level]
+      !verbosity_level.nil? && !verbosity_level.empty? &&
+        verbosity_level.to_i > 0
     end
   end
 end
