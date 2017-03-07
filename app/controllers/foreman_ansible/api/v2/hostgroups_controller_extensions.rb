@@ -10,6 +10,8 @@ module ForemanAnsible
         # cannot extend the method properly.
         # rubocop:disable BlockLength
         included do
+          before_action :find_ansible_roles, :only => [:ansible_roles]
+
           api :POST, '/hostgroups/play_roles',
               N_('Plays Ansible roles on hostgroups')
           param :id, Array, :required => true
@@ -67,9 +69,40 @@ module ForemanAnsible
 
             render_message @result
           end
+
+          api :POST, '/hostgroups/:id/ansible_roles',
+              N_('Assigns Ansible roles to a host group')
+          param :id, :identifier, :required => true
+          param :roles, Array, :required => true
+
+          def ansible_roles
+            find_resource
+
+            @hostgroup.ansible_roles = @roles
+
+            @result = {
+              :roles => @roles,
+              :hostgroup => @hostgroup
+            }
+
+            render_message @result
+          end
         end
 
         private
+
+        def find_ansible_roles
+          role_ids = params.fetch(:roles, [])
+
+          @roles = []
+          role_ids.uniq.each do |role_id|
+            begin
+              @roles.append(find_ansible_role(role_id))
+            rescue ActiveRecord::RecordNotFound => e
+              return not_found(e.message)
+            end
+          end
+        end
 
         def find_ansible_role(id)
           @ansible_role = AnsibleRole.find(id)
@@ -90,7 +123,7 @@ module ForemanAnsible
 
         def action_permission
           case params[:action]
-          when 'play_roles', 'play_ad_hoc_role'
+          when 'play_roles', 'play_ad_hoc_role', 'ansible_roles'
             :view
           else
             super

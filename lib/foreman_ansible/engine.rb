@@ -53,10 +53,11 @@ module ForemanAnsible
         security_block :foreman_ansible do
           permission :play_roles_on_host,
                      { :hosts => [:play_roles, :multiple_play_roles,
-                                  :play_ad_hoc_role],
+                                  :play_ad_hoc_role, :ansible_roles],
                        :'api/v2/hosts' => [:play_roles,
                                            :multiple_play_roles,
-                                           :play_ad_hoc_role] },
+                                           :play_ad_hoc_role,
+                                           :ansible_roles] },
                      :resource_type => 'Host'
           permission :play_roles_on_hostgroup,
                      { :hostgroups => [:play_roles, :play_ad_hoc_role],

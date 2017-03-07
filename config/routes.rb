@@ -37,6 +37,7 @@ Rails.application.routes.draw do
             member do
               post :play_roles
               post :play_ad_hoc_role
+              post :ansible_roles
             end
             collection do
               post :multiple_play_roles
@@ -47,6 +48,7 @@ Rails.application.routes.draw do
             member do
               post :play_roles
               post :play_ad_hoc_role
+              post :ansible_roles
             end
             collection do
               post :multiple_play_roles
