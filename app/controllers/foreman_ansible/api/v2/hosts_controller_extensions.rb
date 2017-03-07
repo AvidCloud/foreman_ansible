@@ -61,12 +61,28 @@ module ForemanAnsible
             render_message @result
           end
 
+          api :POST, '/hosts/:id/list_ansible_roles',
+              N_('Lists assigned Ansible roles')
+          param :id, :identifier, :required => true
+
+          def list_ansible_roles
+            @result = {
+              :all_ansible_roles => @host.all_ansible_roles,
+              :ansible_roles => @host.ansible_roles,
+              :inherited_ansible_roles => @host.inherited_ansible_roles
+            }
+
+            render_message @result
+          end
+
           api :POST, '/hosts/:id/ansible_roles',
               N_('Assigns Ansible roles to a host')
           param :id, :identifier, :required => true
           param :roles, Array, :required => true
 
           def ansible_roles
+            # we do not want to store inherited roles twice
+            @roles = @roles - @host.inherited_ansible_roles
             @host.ansible_roles = @roles
 
             @result = {
@@ -100,7 +116,7 @@ module ForemanAnsible
         def action_permission
           case params[:action]
           when 'play_roles', 'multiple_play_roles',
-               'play_ad_hoc_role', 'ansible_roles'
+               'play_ad_hoc_role', 'ansible_roles', 'list_ansible_roles'
             :view
           else
             super

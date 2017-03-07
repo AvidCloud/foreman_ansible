@@ -57,13 +57,15 @@ module ForemanAnsible
                        :'api/v2/hosts' => [:play_roles,
                                            :multiple_play_roles,
                                            :play_ad_hoc_role,
-                                           :ansible_roles] },
+                                           :ansible_roles,
+                                           :list_ansible_roles] },
                      :resource_type => 'Host'
           permission :play_roles_on_hostgroup,
                      { :hostgroups => [:play_roles, :play_ad_hoc_role],
                        :'api/v2/hostgroups' => [:play_roles,
                                                 :multiple_play_roles,
-                                                :play_ad_hoc_role] },
+                                                :play_ad_hoc_role,
+                                                :list_ansible_roles] },
                      :resource_type => 'Hostgroup'
           permission :view_ansible_roles,
                      { :ansible_roles => [:index],
