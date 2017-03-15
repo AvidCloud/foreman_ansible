@@ -1,3 +1,5 @@
+require 'tmpdir'
+
 module Actions
   module ForemanAnsible
     # Action that initiates the playbook run for roles assigned to

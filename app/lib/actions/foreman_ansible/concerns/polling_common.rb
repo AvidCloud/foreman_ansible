@@ -16,7 +16,9 @@ module Actions
             !File.directory?(input[:working_dir])
           end
 
-          def invoke_external_task; end
+          def invoke_external_task
+            sleep 1
+          end
 
           def poll_external_task
             progress = empty_progress
