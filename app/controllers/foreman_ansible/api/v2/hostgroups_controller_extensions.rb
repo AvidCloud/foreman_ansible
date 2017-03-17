@@ -109,6 +109,9 @@ module ForemanAnsible
 
         def find_ansible_roles
           role_ids = params.fetch(:roles, [])
+          # rails transforms empty arrays to nil but we want to be able
+          # to remove all role assignments as well with an empty array
+          role_ids = [] if role_ids.nil?
 
           @roles = []
           role_ids.uniq.each do |role_id|
