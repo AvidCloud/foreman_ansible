@@ -8,7 +8,11 @@ module ForemanAnsible
     end
 
     def roles_playbook
-      playbook = ['hosts' => 'all', 'roles' => role_names]
+      playbook = [
+        'hosts' => 'all',
+        'any_errors_fatal' => Setting[:ansible_any_errors_fatal],
+        'roles' => role_names
+      ]
       playbook.to_yaml
     end
 
