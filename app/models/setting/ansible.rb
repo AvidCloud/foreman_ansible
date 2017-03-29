@@ -76,6 +76,12 @@ class Setting
                  ' it is ready after a reboot.'),
               '360',
               N_('Post-provision timeout')
+            ),
+            set(
+              'ansible_any_errors_fatal',
+              N_('Aborts a play immediately when one host of the play fails.'),
+              true,
+              N_('Any errors fatal')
             )
           ].compact.each do |s|
             create(s.update(:category => 'Setting::Ansible'))
